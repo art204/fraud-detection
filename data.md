@@ -1,6 +1,8 @@
 # Data description
 This dataset is provided by kaggle for [IEEE-CIS Fraud Detection competition](https://www.kaggle.com/c/ieee-fraud-detection)
 
+Файлы можно скачать по [ссылке](https://disk.yandex.ru/d/lcYPMuy5tVQovA)
+
 **isFraud** - целевая переменная. Показывает, является ли онлайн-транзакция мошеннической.
 
 Данные разбиты на две таблицы **Identity** и **Transaction**, которые объединены с помощью **TransactionID**. Не все транзакции имеют соответствующую информацию в **Identity**.
