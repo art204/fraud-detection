@@ -17,6 +17,6 @@ ML-задачи:
  
 DL-задачи:  
 - GAN сеть для генерации неподозрительных транзакций (прогоняем транзакцию через дискриминатор)  
+
 Презентация:  
 - https://docs.google.com/presentation/d/1jBGt1A3IsOf22JNgH9E-bZ49sXjax-W3/edit?usp=sharing&ouid=107891269662232797951&rtpof=true&sd=true  
-
