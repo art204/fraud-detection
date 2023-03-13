@@ -1,12 +1,14 @@
+import pickle
+
 import pandas as pd
 from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.impute import SimpleImputer
 from category_encoders.target_encoder import TargetEncoder
 from sklearn import preprocessing
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import train_test_split
 
-#NanFeatureSelector удаляет колонки, в которых доля пропусков больше max_nan_rate
+
+# NanFeatureSelector удаляет колонки, в которых доля пропусков больше max_nan_rate
 # (в нашем случае зададим max_nan_rate = 85%)
 class NanFeatureSelector(TransformerMixin, BaseEstimator):
 
@@ -18,7 +20,7 @@ class NanFeatureSelector(TransformerMixin, BaseEstimator):
         nan_stat = self.get_share_of_NaN(X)
         for i in range(len(nan_stat)):
             column = nan_stat.loc[i]
-            if(column['Share_of_NaN'] > self.max_nan_rate):
+            if (column['Share_of_NaN'] > self.max_nan_rate):
                 self.cols_to_remove.append(column['Name'])
         return self
 
@@ -36,11 +38,11 @@ class NanFeatureSelector(TransformerMixin, BaseEstimator):
         colcount = df.count()
         length = len(df)
         for col_name in colcount.keys():
-            result.loc[len(result)] = [col_name, length - colcount[col_name], (length - colcount[col_name])/length]
+            result.loc[len(result)] = [col_name, length - colcount[col_name], (length - colcount[col_name]) / length]
         return result
 
 
-#CorrFeatureSelector удаляет колонки, у которых корреляция больше max_corr
+# CorrFeatureSelector удаляет колонки, у которых корреляция больше max_corr
 # (в нашем случае зададим max_corr = 0.9)
 class CorrFeatureSelector(TransformerMixin, BaseEstimator):
 
@@ -55,7 +57,7 @@ class CorrFeatureSelector(TransformerMixin, BaseEstimator):
             col_name_1 = cols[i]
             if col_name_1 in {'TransactionID', 'isFraud', 'TransactionDT'} or col_name_1 in self.cols_to_remove:
                 continue
-            for j in range(i+1, len(cols)):
+            for j in range(i + 1, len(cols)):
                 col_name_2 = cols[j]
                 if abs(corrs[col_name_1][col_name_2]) > self.max_corr:
                     self.cols_to_remove.add(col_name_2)
@@ -64,7 +66,8 @@ class CorrFeatureSelector(TransformerMixin, BaseEstimator):
     def transform(self, X):
         return X.drop(columns=self.cols_to_remove)
 
-#Заполнение пропусков
+
+# Заполнение пропусков
 class CustomImputer(TransformerMixin, BaseEstimator):
 
     def __init__(self, strategy='most_frequent', fill_value=None):
@@ -82,7 +85,8 @@ class CustomImputer(TransformerMixin, BaseEstimator):
 
         return X
 
-#Кодирование категориальных признаков
+
+# Кодирование категориальных признаков
 class ObjectEncoder:
     def __init__(self, ohe_limit, obj_cols):
         self.__ohe_limit = ohe_limit
@@ -138,7 +142,7 @@ class ObjectEncoder:
         return self.encode_ohe_cols(X)
 
 
-#Масштабирование числовых признаков
+# Масштабирование числовых признаков
 class CustomScaler(TransformerMixin, BaseEstimator):
 
     def __init__(self, cols, scaler=None):
@@ -156,6 +160,7 @@ class CustomScaler(TransformerMixin, BaseEstimator):
         X_res[self.cols] = self.scaler.transform(X_res[self.cols])
         return X_res
 
+
 def get_real_cols(data, cat_cols):
     real_cols = list(data.columns)
 
@@ -163,6 +168,7 @@ def get_real_cols(data, cat_cols):
         if col in real_cols:
             real_cols.remove(col)
     return real_cols
+
 
 def get_cat_cols():
     with open('cat_feat.yaml', 'r', encoding='utf-8') as fs:
@@ -184,12 +190,6 @@ def get_coding_pipeline(data):
 
     return prep_data_pipe
 
-def get_train_test(data):
-    prep_data_pipe = get_coding_pipeline(data)
-    y = data['isFraud']
-    X = data.drop(columns=['isFraud', 'TransactionID'])
 
-    X = prep_data_pipe.fit_transform(X, y)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-
-    return X_train, X_test, y_train, y_test
+def get_prep_data_pipe_from_pkl():
+    return pickle.load(open('anomaly/models_pkl/PREP_DATA_PIPE.pkl', 'rb'))

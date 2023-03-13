@@ -23,7 +23,7 @@ def get_model(model_name):
                   'xgboost' : 'XGB_CLF.pkl',
                   'lightgbm' : 'LGBM_CLF.pkl',
                   'staking' : 'STACK_CLF.pkl'}
-    return  pickle.load(open('models_pkl/' + dictionary.get(model_name), 'rb'))
+    return pickle.load(open('anomaly/models_pkl/' + dictionary.get(model_name), 'rb'))
 
 
 def get_parms(model_name):
