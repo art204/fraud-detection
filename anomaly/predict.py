@@ -3,7 +3,6 @@ from argparse import ArgumentParser
 from sklearn.metrics import accuracy_score, roc_auc_score
 
 import pandas as pd
-import yaml
 import json
 
 from feature_selection import get_coding_pipeline, get_prep_data_pipe_from_pkl, NanFeatureSelector,\
