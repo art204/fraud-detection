@@ -1,0 +1,12 @@
+catboost
+lightgbm
+xgboost
+scikit-learn==1.2.1
+category_encoders
+dvc
+kaggle
+pandas
+numpy
+matplotlib
+PyYAML
+flake8

@@ -1,0 +1,36 @@
+stages:
+  download:
+    cmd: kaggle competitions download -c ieee-fraud-detection -p anomaly/data
+    outs:
+    - anomaly/data/ieee-fraud-detection.zip
+  unzip:
+    cmd: tar -C anomaly/data/ -xvf anomaly/data/ieee-fraud-detection.zip
+    deps:
+    - anomaly/data/ieee-fraud-detection.zip
+    outs:
+    - anomaly/data/test_identity.csv
+    - anomaly/data/test_transaction.csv
+    - anomaly/data/train_identity.csv
+    - anomaly/data/train_transaction.csv
+    - anomaly/data/sample_submission.csv
+  split:
+    cmd: python anomaly/train_test_splitter.py --input_transaction anomaly/data/train_transaction.csv
+      --input_identity anomaly/data/train_identity.csv --output_train anomaly/data/train.csv
+      --output_test anomaly/data/test.csv --params params.yaml
+    deps:
+    - anomaly/data/train_identity.csv
+    - anomaly/data/train_transaction.csv
+    - anomaly/train_test_splitter.py
+    params:
+    - split
+    outs:
+    - anomaly/data/test.csv
+    - anomaly/data/train.csv
+  predict:
+    cmd: python anomaly/predict.py
+    deps:
+      - anomaly/data/test.csv
+      - anomaly/data/train.csv
+      - anomaly/predict.py
+    metrics:
+    - anomaly/metrics.json

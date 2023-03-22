@@ -1,0 +1,72 @@
+schema: '2.0'
+stages:
+  download:
+    cmd: kaggle competitions download -c ieee-fraud-detection -p anomaly/data
+    outs:
+    - path: anomaly/data/ieee-fraud-detection.zip
+      md5: b566db118cf86487c8dc3c363a879eb4
+      size: 123856947
+  unzip:
+    cmd: tar -C anomaly/data/ -xvf anomaly/data/ieee-fraud-detection.zip
+    deps:
+    - path: anomaly/data/ieee-fraud-detection.zip
+      md5: b566db118cf86487c8dc3c363a879eb4
+      size: 123856947
+    outs:
+    - path: anomaly/data/sample_submission.csv
+      md5: a4dece4fe5e7a398319009b94f7b34a5
+      size: 6080314
+    - path: anomaly/data/test_identity.csv
+      md5: 54ae784303f82e5cadeb2d899b05c6a8
+      size: 25797161
+    - path: anomaly/data/test_transaction.csv
+      md5: 7ea6862ef4e078efb309e19fa49178fd
+      size: 613194934
+    - path: anomaly/data/train_identity.csv
+      md5: 8487db5001c8bad139f3318d5d3db416
+      size: 26529680
+    - path: anomaly/data/train_transaction.csv
+      md5: 58b4038d8715f5e11007b826bef00ce7
+      size: 683351067
+  split:
+    cmd: python anomaly/train_test_splitter.py --input_transaction anomaly/data/train_transaction.csv
+      --input_identity anomaly/data/train_identity.csv --output_train anomaly/data/train.csv
+      --output_test anomaly/data/test.csv --params params.yaml
+    deps:
+    - path: anomaly/data/train_identity.csv
+      md5: 8487db5001c8bad139f3318d5d3db416
+      size: 26529680
+    - path: anomaly/data/train_transaction.csv
+      md5: 58b4038d8715f5e11007b826bef00ce7
+      size: 683351067
+    - path: anomaly/train_test_splitter.py
+      md5: 9d91f1f0d7f1419ca569e099efec5789
+      size: 1315
+    params:
+      params.yaml:
+        split:
+          random_state: 42
+          test_size: 0.2
+    outs:
+    - path: anomaly/data/test.csv
+      md5: b02462c6d0d623f7ec5e8601d2f502a1
+      size: 144513986
+    - path: anomaly/data/train.csv
+      md5: 834c29741c9f07713a075a0307f7a9e9
+      size: 577882929
+  predict:
+    cmd: python anomaly/predict.py
+    deps:
+    - path: anomaly/data/test.csv
+      md5: b02462c6d0d623f7ec5e8601d2f502a1
+      size: 144513986
+    - path: anomaly/data/train.csv
+      md5: 834c29741c9f07713a075a0307f7a9e9
+      size: 577882929
+    - path: anomaly/predict.py
+      md5: 79ceda1640a350c1b0a98fa498f5c1bc
+      size: 2814
+    outs:
+    - path: anomaly/metrics.json
+      md5: 6bfd41bc85d47ddd70963c06f080ab11
+      size: 147

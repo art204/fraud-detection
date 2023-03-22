@@ -1,4 +1,3 @@
-
 from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
 from xgboost import XGBClassifier
@@ -14,16 +13,17 @@ def get_cat_feat(data):
         line = fs.readline()
     return line.split(',')
 
+
 def get_model(model_name):
-    dictionary = {'logreg' : 'LR_CLF.pkl',
-                  'svc_lin' : 'SVC_LIN_CLF.pkl',
+    dictionary = {'logreg': 'LR_CLF.pkl',
+                  'svc_lin': 'SVC_LIN_CLF.pkl',
                   'svc_rbf': 'SVC_RBF_CLF.pkl',
-                  'random_forest' : 'RF_CLF.pkl',
-                  'catboost' : 'CB_CLF.pkl',
-                  'xgboost' : 'XGB_CLF.pkl',
-                  'lightgbm' : 'LGBM_CLF.pkl',
-                  'staking' : 'STACK_CLF.pkl'}
-    return  pickle.load(open('models_pkl/' + dictionary.get(model_name), 'rb'))
+                  'random_forest': 'RF_CLF.pkl',
+                  'catboost': 'CB_CLF.pkl',
+                  'xgboost': 'XGB_CLF.pkl',
+                  'lightgbm': 'LGBM_CLF.pkl',
+                  'staking': 'STACK_CLF.pkl'}
+    return pickle.load(open('anomaly/models_pkl/' + dictionary.get(model_name), 'rb'))
 
 
 def get_parms(model_name):
@@ -48,17 +48,18 @@ def get_stacking_estimators():
     estimators = [('lgbm', lgbm_clf), ('cb', cb_clf), ('xgb', xgb_clf)]
     return estimators
 
+
 def model_choice(model_name, data):
     if model_name == 'staking':
         return StackingClassifier(estimators=get_stacking_estimators())
 
     parms = get_parms(model_name)
-    dictionary = {'logreg' : LogisticRegression(**parms),
-                  'svc_lin' : SVC(**parms),
+    dictionary = {'logreg': LogisticRegression(**parms),
+                  'svc_lin': SVC(**parms),
                   'svc_rbf': SVC(**parms),
-                  'catboost' : CatBoostClassifier(**parms, cat_features= get_cat_feat(data)),
-                  'xgboost' : XGBClassifier(**parms),
-                  'lightgbm' : LGBMClassifier(**parms),
-                  'staking' : 6}
+                  'catboost': CatBoostClassifier(**parms, cat_features=get_cat_feat(data)),
+                  'xgboost': XGBClassifier(**parms),
+                  'lightgbm': LGBMClassifier(**parms),
+                  'staking': 6}
 
     return dictionary.get(model_name)
