@@ -191,5 +191,16 @@ def get_coding_pipeline(data):
     return prep_data_pipe
 
 
+class CustomUnpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == "__main__":
+            module = "anomaly.feature_selection"
+        return super().find_class(module, name)
+
+
 def get_prep_data_pipe_from_pkl():
-    return pickle.load(open('anomaly/models_pkl/PREP_DATA_PIPE.pkl', 'rb'))
+    pipeline = None
+    with open('anomaly/models_pkl/PREP_DATA_PIPE.pkl', 'rb') as f:
+        unpickler = CustomUnpickler(f)
+        pipeline = unpickler.load()
+    return pipeline

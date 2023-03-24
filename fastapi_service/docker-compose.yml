@@ -1,0 +1,16 @@
+version: '3.3'
+
+services:
+    fraud-detection-service:
+        build:
+            context: ../
+            dockerfile: /fastapi_service/Dockerfile
+        ports:
+            - "8000:8000"
+        volumes:
+            - ../anomaly/models_pkl:/anomaly/models_pkl
+        networks:
+            - fastapi-service
+
+networks:
+    fastapi-service:

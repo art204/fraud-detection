@@ -1,7 +1,7 @@
 catboost
 lightgbm
 xgboost
-scikit-learn==1.2.1
+scikit-learn
 category_encoders
 dvc
 kaggle
@@ -10,3 +10,6 @@ numpy
 matplotlib
 PyYAML
 flake8
+fastapi
+uvicorn[standard]
+pydantic
