@@ -3,9 +3,10 @@ import pickle
 import pandas as pd
 from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.impute import SimpleImputer
-from category_encoders.target_encoder import TargetEncoder
 from sklearn import preprocessing
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
+from category_encoders.target_encoder import TargetEncoder
 
 
 # NanFeatureSelector удаляет колонки, в которых доля пропусков больше max_nan_rate
@@ -91,9 +92,9 @@ class ObjectEncoder:
     def __init__(self, ohe_limit, obj_cols):
         self.__ohe_limit = ohe_limit
         self.__obj_cols = obj_cols
-        self.__encoded_columns = None
         self.__ohe_cols = []
         self.__targ_enc_cols = []
+        self.__ohe_enc = None
         self.__targ_enc = None
 
     def divide_columns(self, df):
@@ -104,42 +105,38 @@ class ObjectEncoder:
                 else:
                     self.__targ_enc_cols.append(col)
 
-    def encode_ohe_cols(self, df):
-        # use OHE for columns from self.__ohe_cols only
-        if self.__encoded_columns is not None:
-            df = pd.get_dummies(df, drop_first=False, columns=self.__ohe_cols)
-
-            removed_cols = []
-            for col in df.columns:
-                if col not in self.__encoded_columns:
-                    removed_cols.append(col)
-            df.drop(columns=removed_cols, inplace=True)
-
-            for i in range(len(self.__encoded_columns)):
-                col = self.__encoded_columns[i]
-                if col not in df:
-                    df.insert(i, col, 0)
-
-        else:
-            df = pd.get_dummies(df, drop_first=True, columns=self.__ohe_cols)
-            self.__encoded_columns = df.columns
-
-        return df
+    def add_ohe_cols_in_df(self, df, cat_cols):
+        transformed = self.__ohe_enc.transform(df[cat_cols].astype(str))
+        transformed_start = 0
+        transformed_end = 0
+        for i in range(len(cat_cols)):
+            col_name = cat_cols[i]
+            categories = col_name + '_' + self.__ohe_enc.categories_[i]
+            transformed_end += len(categories)
+            df[categories[1:]] = transformed.toarray()[:, transformed_start + 1:transformed_end]
+            transformed_start += len(categories)
+        df.drop(columns=cat_cols, inplace=True)
 
     def fit(self, X, y):
         self.divide_columns(X)
         self.__targ_enc = TargetEncoder(cols=self.__targ_enc_cols)
         self.__targ_enc.fit(X, y)
+        self.__ohe_enc = OneHotEncoder()
+        self.__ohe_enc.fit(X[self.__ohe_cols].astype(str))
 
     def transform(self, X):
         X = self.__targ_enc.transform(X)
-        return self.encode_ohe_cols(X)
+        self.add_ohe_cols_in_df(X, self.__ohe_cols)
+        return X
 
     def fit_transform(self, X, y):
         self.divide_columns(X)
         self.__targ_enc = TargetEncoder(cols=self.__targ_enc_cols)
         X = self.__targ_enc.fit_transform(X, y)
-        return self.encode_ohe_cols(X)
+        self.__ohe_enc = OneHotEncoder()
+        self.__ohe_enc.fit(X[self.__ohe_cols].astype(str))
+        self.add_ohe_cols_in_df(X, self.__ohe_cols)
+        return X
 
 
 # Масштабирование числовых признаков
