@@ -1,6 +1,7 @@
 import pickle
 
 import pandas as pd
+from collections import OrderedDict
 from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.impute import SimpleImputer
 from sklearn import preprocessing
@@ -106,16 +107,20 @@ class ObjectEncoder:
                     self.__targ_enc_cols.append(col)
 
     def add_ohe_cols_in_df(self, df, cat_cols):
-        transformed = self.__ohe_enc.transform(df[cat_cols].astype(str))
+        transformed = self.__ohe_enc.transform(df[cat_cols].astype(str)).toarray()
+        ordered_dict = OrderedDict()
         transformed_start = 0
         transformed_end = 0
         for i in range(len(cat_cols)):
             col_name = cat_cols[i]
             categories = col_name + '_' + self.__ohe_enc.categories_[i]
             transformed_end += len(categories)
-            df[categories[1:]] = transformed.toarray()[:, transformed_start + 1:transformed_end]
+            for j in range(1, len(categories)):
+                ordered_dict[categories[j]] = transformed[:, transformed_start + j]
             transformed_start += len(categories)
+        df = pd.concat([df, pd.DataFrame(ordered_dict)], axis=1)
         df.drop(columns=cat_cols, inplace=True)
+        return df
 
     def fit(self, X, y):
         self.divide_columns(X)
@@ -126,8 +131,7 @@ class ObjectEncoder:
 
     def transform(self, X):
         X = self.__targ_enc.transform(X)
-        self.add_ohe_cols_in_df(X, self.__ohe_cols)
-        return X
+        return self.add_ohe_cols_in_df(X, self.__ohe_cols)
 
     def fit_transform(self, X, y):
         self.divide_columns(X)
@@ -135,8 +139,7 @@ class ObjectEncoder:
         X = self.__targ_enc.fit_transform(X, y)
         self.__ohe_enc = OneHotEncoder()
         self.__ohe_enc.fit(X[self.__ohe_cols].astype(str))
-        self.add_ohe_cols_in_df(X, self.__ohe_cols)
-        return X
+        return self.add_ohe_cols_in_df(X, self.__ohe_cols)
 
 
 # Масштабирование числовых признаков

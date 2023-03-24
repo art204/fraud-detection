@@ -1,6 +1,7 @@
 import pandas as pd
 
 from typing import List
+from collections import defaultdict
 
 from anomaly.feature_selection import get_prep_data_pipe_from_pkl
 from anomaly.models import get_model
@@ -65,18 +66,16 @@ class Predictor:
         if isinstance(obj, pd.DataFrame):
             return obj.copy()
         if isinstance(obj, Transaction):
-            df = pd.DataFrame()
-            d = obj.dict()
-            for col in self.__raw_columns:
-                df.loc[0, col] = d[col]
-            return df
+            dict_for_df = defaultdict(list)
+            for k, v in obj.dict().items():
+                dict_for_df[k].append(v)
+            return pd.DataFrame(dict_for_df)
         if isinstance(obj, List):
-            df = pd.DataFrame()
+            dict_for_df = defaultdict(list)
             for i in range(len(obj)):
-                d = obj[i].dict()
-                for col in self.__raw_columns:
-                    df.loc[i, col] = d[col]
-            return df
+                for k, v in obj[i].dict().items():
+                    dict_for_df[k].append(v)
+            return pd.DataFrame(dict_for_df)
 
     def predict(self, data):
         df = self.prep_data(data)
