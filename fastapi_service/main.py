@@ -1,13 +1,15 @@
 from fastapi import FastAPI
 from typing import List
 
+from fastapi_service.metrics_utils import PrometheusMiddleware, metrics
 from fastapi_service.predictor import Predictor
 from fastapi_service.transaction import Transaction
 
 
 predictor = Predictor()
 app = FastAPI()
-
+app.add_middleware(PrometheusMiddleware)
+app.add_route("/metrics", metrics)
 
 # Запрос для одной транзакции
 @app.post("/predict_one_transaction")
@@ -19,3 +21,9 @@ def predict_item(item: Transaction) -> float:
 @app.post("/predict_transactions")
 def predict_items(items: List[Transaction]) -> List[float]:
     return predictor.predict(items).tolist()
+
+
+# Бросить исключение (тестируем панель Total Exceptions)
+@app.get("/raise_exception")
+def predict_items():
+    raise Exception

@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.4'
 
 services:
     fraud-detection-service:
@@ -10,7 +10,41 @@ services:
         volumes:
             - ../anomaly/models_pkl:/anomaly/models_pkl
         networks:
-            - fastapi-service
+            grafana-network:
+                ipv4_address: 172.16.231.11
+
+    prometheus:
+        image: prom/prometheus
+        ports:
+            - "9090:9090"
+        volumes:
+            - type: bind
+              source: ./prometheus
+              target: /etc/prometheus
+        networks:
+            grafana-network:
+                ipv4_address: 172.16.231.12
+
+    grafana:
+        ports:
+            - "3000:3000"
+        image: grafana/grafana
+        volumes:
+            - ./grafana/:/etc/grafana/provisioning/datasources
+            - ./dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+            - ./dashboards:/etc/grafana/dashboards
+        environment:
+            GF_AUTH_ANONYMOUS_ENABLED: "true"
+            GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+            GF_AUTH_DISABLE_LOGIN_FORM: "true"
+        networks:
+            grafana-network:
+                ipv4_address: 172.16.231.13
 
 networks:
-    fastapi-service:
+    grafana-network:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.16.231.0/24

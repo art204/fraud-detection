@@ -5,7 +5,7 @@ scikit-learn
 category_encoders
 dvc
 kaggle
-pandas
+pandas==1.5.3
 numpy
 matplotlib
 PyYAML
@@ -13,3 +13,6 @@ flake8
 fastapi
 uvicorn[standard]
 pydantic
+starlette
+opentelemetry-instrumentation-fastapi
+prometheus-client
