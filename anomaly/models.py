@@ -8,7 +8,7 @@ import json
 import pickle
 
 
-def get_cat_feat(data):
+def get_categorical_features(data):
     with open('cat_feat.yaml', 'r', encoding='utf-8') as fs:
         line = fs.readline()
     return line.split(',')
@@ -57,7 +57,7 @@ def model_choice(model_name, data):
     dictionary = {'logreg': LogisticRegression(**parms),
                   'svc_lin': SVC(**parms),
                   'svc_rbf': SVC(**parms),
-                  'catboost': CatBoostClassifier(**parms, cat_features=get_cat_feat(data)),
+                  'catboost': CatBoostClassifier(**parms, cat_features=get_categorical_features(data)),
                   'xgboost': XGBClassifier(**parms),
                   'lightgbm': LGBMClassifier(**parms),
                   'staking': 6}
