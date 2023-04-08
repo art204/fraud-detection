@@ -17,4 +17,3 @@ starlette
 opentelemetry-instrumentation-fastapi
 prometheus-client
 aiogram
-#logging
