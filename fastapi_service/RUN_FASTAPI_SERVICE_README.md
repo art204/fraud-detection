@@ -5,7 +5,10 @@ Prometheus and Grafana are used for monitoring. Dashboard file (`fastapi-observa
 utils classes and methods (file `metrics_utils.py`) are taken from https://github.com/blueswen/fastapi-observability.
 
 ## Docker image link
-Docker image of the service in docker hub: 
+Docker image of the 
+
+
+service in docker hub: 
 https://hub.docker.com/r/artemd2204/fraud_detection_fastapi_service
 
 ## Start service

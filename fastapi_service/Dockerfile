@@ -13,6 +13,8 @@ ADD /fastapi_service/metrics_utils.py /fastapi_service/metrics_utils.py
 RUN mkdir /anomaly
 ADD /anomaly/feature_selection.py /anomaly/feature_selection.py
 ADD /anomaly/models.py /anomaly/models.py
+ADD /anomaly/models_pkl /anomaly/models_pkl
+
 
 ADD /requirements.txt /requirements.txt
 
