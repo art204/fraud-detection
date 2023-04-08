@@ -4,14 +4,25 @@ services:
     fraud-detection-service:
         build:
             context: ../
-            dockerfile: /fastapi_service/Dockerfile
+            dockerfile: fastapi_service/Dockerfile.1
         ports:
             - "8000:8000"
-        # volumes:
-        #     - ../anomaly/models_pkl:/anomaly/models_pkl
         networks:
             grafana-network:
                 ipv4_address: 172.16.231.11
+
+    tg-bot:
+        build:
+            context: ../
+            dockerfile: fastapi_service/Dockerfile.2        
+        ports:
+            - '8080:8080'
+        environment:
+            - PYTHONPATH=.
+        # volumes:
+        #     - ../anomaly/models_pkl:/anomaly/models_pkl
+        
+
 
     prometheus:
         image: prom/prometheus

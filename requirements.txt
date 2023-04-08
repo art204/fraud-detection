@@ -1,4 +1,4 @@
-catboost
+catboost==0.23.0
 lightgbm
 xgboost
 scikit-learn
@@ -16,3 +16,5 @@ pydantic
 starlette
 opentelemetry-instrumentation-fastapi
 prometheus-client
+aiogram
+#logging
