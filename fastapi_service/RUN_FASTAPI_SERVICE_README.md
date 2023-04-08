@@ -4,6 +4,8 @@ Project source files are stored in folder `fastapi_service/`.
 ## Docker image link
 Docker image of the service in docker hub: 
 https://hub.docker.com/r/artemd2204/fraud_detection_fastapi_service
+Docker image of the telegramg bot in docker hub: 
+https://hub.docker.com/r/mlenjoyer/tgbot
 
 Run docker container with command:
 ```commandline
