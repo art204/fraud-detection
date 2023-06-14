@@ -3,7 +3,7 @@ import pandas as pd
 from typing import List
 from collections import defaultdict
 
-from anomaly.feature_selection import get_prep_data_pipe_from_pkl
+from anomaly.data_preprocessing.data_preprocessing import get_prep_data_pipe_from_pkl
 from anomaly.models import get_model
 from fastapi_service.transaction import Transaction
 

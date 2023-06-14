@@ -10,10 +10,10 @@ ADD /fastapi_service/transaction.py fastapi_service/transaction.py
 ADD /fastapi_service/metrics_utils.py fastapi_service/metrics_utils.py
 
 RUN mkdir /anomaly
+RUN mkdir /anomaly/data_preprocessing
+ADD /anomaly/data_preprocessing/. /anomaly/data_preprocessing/.
 ADD /anomaly/models_pkl /anomaly/models_pkl
-ADD /anomaly/feature_selection.py /anomaly/feature_selection.py
 ADD /anomaly/models.py /anomaly/models.py
-ADD /anomaly/models_pkl /anomaly/models_pkl
 
 
 ADD /requirements.txt /requirements.txt
