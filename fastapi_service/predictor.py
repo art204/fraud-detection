@@ -1,6 +1,7 @@
 import pandas as pd
 
 from typing import List
+from typing import Dict
 from collections import defaultdict
 
 from anomaly.data_preprocessing.data_preprocessing import get_prep_data_pipe_from_pkl
@@ -76,8 +77,17 @@ class Predictor:
                 for k, v in obj[i].dict().items():
                     dict_for_df[k].append(v)
             return pd.DataFrame(dict_for_df)
+        if isinstance(obj, Dict):
+            return pd.DataFrame(obj)
 
     def predict(self, data):
         df = self.prep_data(data)
         result = self.__clf.predict(df)
         return result
+
+    def train(self, x_train):
+        y_train = x_train.pop('isFraud')
+        x_train.pop('TransactionID', None)
+        x_train = self.prep_data(x_train)
+        self.__clf.fit(x_train, y_train)
+        return True

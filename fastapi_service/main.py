@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from typing import List
+from typing import Dict
 
 from fastapi_service.metrics_utils import PrometheusMiddleware, metrics
 from fastapi_service.predictor import Predictor
@@ -22,6 +23,10 @@ def predict_item(item: Transaction) -> float:
 def predict_items(items: List[Transaction]) -> List[float]:
     return predictor.predict(items).tolist()
 
+# Запрос для обучения модели
+@app.post("/train_model")
+def predict_items(data: Dict) -> bool:
+    return predictor.train(data)
 
 # Бросить исключение (тестируем панель Total Exceptions)
 @app.get("/raise_exception")
