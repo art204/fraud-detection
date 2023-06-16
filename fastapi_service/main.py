@@ -4,10 +4,12 @@ from typing import Dict
 
 from fastapi_service.metrics_utils import PrometheusMiddleware, metrics
 from fastapi_service.predictor import Predictor
+from fastapi_service.settings import Settings
 from fastapi_service.transaction import Transaction
 
 
-predictor = Predictor()
+settings = Settings()
+predictor = Predictor(settings.get_model_name())
 app = FastAPI()
 app.add_middleware(PrometheusMiddleware)
 app.add_route("/metrics", metrics)

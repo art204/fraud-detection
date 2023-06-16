@@ -6,12 +6,35 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 import json
 import pickle
+import torch
+
+from anomaly.mlp_5_lin_layers import MLP_5linear
 
 
 def get_categorical_features(data):
     with open('cat_feat.yaml', 'r', encoding='utf-8') as fs:
         line = fs.readline()
     return line.split(',')
+
+
+def get_fcnn_model():
+    ckpt = torch \
+        .load(
+        'anomaly/nn_models_pt/linLay5_hidLayFeatNumEqInFeatNum_dropout01_bsize512_epoch40_sgd_mom09_lr5e2_wd1e4_explr09.pt')
+
+    in_features_num = 364
+    middle_features_num = 364
+    number_of_classes = 2
+    dropout_p = 0.1
+
+    model = MLP_5linear(in_features_num, middle_features_num, number_of_classes, dropout_p)
+    optimizer = torch.optim.SGD(model.parameters(), lr=5e-2, momentum=0.9, weight_decay=1e-4)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
+
+    model.load_state_dict(ckpt['model_state'])
+    optimizer.load_state_dict(ckpt['optimizer_state'])
+    scheduler.load_state_dict(ckpt['scheduler_state'])
+    return model, optimizer, scheduler
 
 
 def get_model(model_name):

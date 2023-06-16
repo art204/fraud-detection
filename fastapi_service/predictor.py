@@ -4,16 +4,24 @@ from typing import List
 from typing import Dict
 from collections import defaultdict
 
+from anomaly.nn_utils import predict as nn_predict
+from anomaly.nn_utils import train as nn_train
 from anomaly.data_preprocessing.data_preprocessing import get_prep_data_pipe_from_pkl
-from anomaly.models import get_model
+from anomaly.models import get_model, get_fcnn_model
 from fastapi_service.transaction import Transaction
 
 
 class Predictor:
 
-    def __init__(self):
+    def __init__(self, clf_name='logreg'):
         self.__prep_data_pipe = get_prep_data_pipe_from_pkl()
-        self.__clf = get_model('staking')
+        self.__clf_name = clf_name
+        self.__optimizer = None
+        self.__scheduler = None
+        if clf_name == 'fcnn':
+            self.__clf, self.__optimizer, self.__scheduler = get_fcnn_model()
+        else:
+            self.__clf = get_model(clf_name)
         self.__raw_columns = ['TransactionDT', 'TransactionAmt', 'ProductCD',
                               'card1', 'card2', 'card3', 'card4', 'card5', 'card6',
                               'addr1', 'addr2', 'dist1', 'dist2', 'P_emaildomain', 'R_emaildomain',
@@ -82,12 +90,18 @@ class Predictor:
 
     def predict(self, data):
         df = self.prep_data(data)
-        result = self.__clf.predict(df)
+        if self.__clf_name == 'fcnn':
+            result = nn_predict(self.__clf, df)
+        else:
+            result = self.__clf.predict(df)
         return result
 
     def train(self, x_train):
         y_train = x_train.pop('isFraud')
         x_train.pop('TransactionID', None)
         x_train = self.prep_data(x_train)
-        self.__clf.fit(x_train, y_train)
+        if self.__clf_name == 'fcnn':
+            nn_train(self.__clf, self.__optimizer, self.__scheduler, x_train, y_train)
+        else:
+            self.__clf.fit(x_train, y_train)
         return True

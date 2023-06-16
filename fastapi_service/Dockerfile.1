@@ -9,13 +9,17 @@ ADD /fastapi_service/main.py /fastapi_service/main.py
 ADD /fastapi_service/predictor.py /fastapi_service/predictor.py
 ADD /fastapi_service/transaction.py /fastapi_service/transaction.py
 ADD /fastapi_service/metrics_utils.py /fastapi_service/metrics_utils.py
+ADD /fastapi_service/settings.py /fastapi_service/settings.py
 
 
 RUN mkdir /anomaly
 RUN mkdir /anomaly/data_preprocessing
 ADD /anomaly/data_preprocessing/. /anomaly/data_preprocessing/.
 ADD /anomaly/models_pkl /anomaly/models_pkl
+ADD /anomaly/nn_models_pt /anomaly/nn_models_pt
 ADD /anomaly/models.py /anomaly/models.py
+ADD /anomaly/mlp_5_lin_layers.py /anomaly/mlp_5_lin_layers.py
+ADD /anomaly/nn_utils.py /anomaly/nn_utils.py
 
 ADD /requirements.txt /requirements.txt
 RUN pip install --upgrade pip
