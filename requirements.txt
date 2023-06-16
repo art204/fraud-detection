@@ -17,3 +17,5 @@ starlette
 opentelemetry-instrumentation-fastapi
 prometheus-client
 aiogram
+torch
+tqdm

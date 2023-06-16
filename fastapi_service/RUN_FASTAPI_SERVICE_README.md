@@ -1,6 +1,15 @@
 ## Project source files
 Project source files are stored in folder `fastapi_service/`.
 
+## Models
+Fully connected neural network is used in the last version of the service.
+Model can be changed in `fastapi_service/settings.py` file.
+Available models:
+    Fully connected neural network: `'fcnn'`
+    Logistic regression: `'logreg'`
+    Boosting: `'catboost'`, `'xgboost'`
+    Stacking classifier with 3 estimators (CatBoost, XGB, LGBM): `'staking'`
+
 ## Docker image link
 Docker image of the service in docker hub: 
 https://hub.docker.com/r/artemd2204/fraud_detection_fastapi_service
