@@ -20,3 +20,5 @@ aiogram
 torch
 tqdm
 aioredis
+pytest
+pytest-asyncio
