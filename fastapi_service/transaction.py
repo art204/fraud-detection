@@ -2,6 +2,8 @@ from pydantic import BaseModel
 
 
 class Transaction(BaseModel):
+    TransactionID: int
+    isFraud: int
     TransactionDT: int
     TransactionAmt: float
     ProductCD: object

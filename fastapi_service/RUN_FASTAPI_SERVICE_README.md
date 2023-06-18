@@ -10,6 +10,10 @@ Available models:
     Boosting: `'catboost'`, `'xgboost'`
     Stacking classifier with 3 estimators (CatBoost, XGB, LGBM): `'staking'`
 
+## DB
+Transactions are stored in the database. Current version of the service uses Redis DB.
+Transaction can be requested from the database by `TransactionID`.
+
 ## Docker image link
 Docker image of the service in docker hub: 
 https://hub.docker.com/r/artemd2204/fraud_detection_fastapi_service
@@ -39,6 +43,16 @@ and one transaction in json format in request body.
 
 `http://127.0.0.1:8000/predict_transactions` - prediction for list of transactions. Use `POST` method with `"Content-Type": "application/json"`
 and list of transactions in json format in request body.
+
+`http://127.0.0.1:8000/train_input_data` - model training. Only input (passed through request) data is used for training.
+Use `POST` method with `"Content-Type": "application/json"` and data in json format in request body.
+
+`http://127.0.0.1:8000/train_full_data` - model training. Full data is used for training: all transactions are taken from
+database and concatenated with input transactions (passed through request).
+Use `POST` method with `"Content-Type": "application/json"` and data in json format in request body.
+
+`http://127.0.0.1:8000/add_transaction` - add transaction in database.
+Use `POST` method with `"Content-Type": "application/json"` and data in json format in request body.
 
 `http://127.0.0.1:8000/raise_exception` - use request with `GET` method for testing `Total Exception`
 and `Percent of 5xx Requests` grafana panels.
