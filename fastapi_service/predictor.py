@@ -66,8 +66,7 @@ class Predictor:
                               'DeviceType', 'DeviceInfo']
 
     # Подготовка данных
-    def prep_data(self, data):
-        df = self.__get_dataframe(data)
+    def prep_data(self, df):
         return self.__prep_data_pipe.transform(df)
 
     # Создание DataFrame из исходных данных
@@ -89,7 +88,12 @@ class Predictor:
             return pd.DataFrame(obj)
 
     def predict(self, data):
-        df = self.prep_data(data)
+        df = self.__get_dataframe(data)
+        if 'TransactionID' in df.columns:
+            df.drop(columns=['TransactionID'], inplace=True)
+        if 'isFraud' in df.columns:
+            df.drop(columns=['isFraud'], inplace=True)
+        df = self.prep_data(df)
         if self.__clf_name == 'fcnn':
             result = nn_predict(self.__clf, df)
         else:
@@ -97,8 +101,11 @@ class Predictor:
         return result
 
     def train(self, x_train):
-        y_train = x_train.pop('isFraud')
-        x_train.pop('TransactionID', None)
+        x_train = self.__get_dataframe(x_train)
+        y_train = x_train['isFraud']
+        if 'TransactionID' in x_train.columns:
+            x_train.drop(columns=['TransactionID'], inplace=True)
+        x_train.drop(columns=['isFraud'], inplace=True)
         x_train = self.prep_data(x_train)
         if self.__clf_name == 'fcnn':
             nn_train(self.__clf, self.__optimizer, self.__scheduler, x_train, y_train)

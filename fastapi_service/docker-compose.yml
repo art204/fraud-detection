@@ -4,24 +4,39 @@ services:
     fraud-detection-service:
         build:
             context: ../
-            dockerfile: fastapi_service/Dockerfile.1
+            dockerfile: fastapi_service/Dockerfile.1_v1
         ports:
             - "8000:8000"
         networks:
             grafana-network:
                 ipv4_address: 172.16.231.11
+            redis-network:
+                ipv4_address: 172.16.232.11
+
+    redis:
+        image: redis:7
+        container_name: redis
+        restart: unless-stopped
+        volumes:
+            - ./redis/data:/data
+            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+        ports:
+            - "6379:6379"
+        networks:
+            redis-network:
+                ipv4_address: 172.16.232.12
+        command: redis-server /usr/local/etc/redis/redis.conf
 
     tg-bot:
         build:
             context: ../
-            dockerfile: fastapi_service/Dockerfile.2        
+            dockerfile: fastapi_service/Dockerfile.2
         ports:
             - '8080:8080'
         environment:
             - PYTHONPATH=.
         volumes:
             - ../anomaly/models_pkl:/anomaly/models_pkl
-        
 
 
     prometheus:
@@ -59,3 +74,10 @@ networks:
             driver: default
             config:
                 - subnet: 172.16.231.0/24
+
+    redis-network:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.16.232.0/24
