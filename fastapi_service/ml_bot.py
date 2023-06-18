@@ -27,6 +27,7 @@ async def process_hi3_command(message: types.Message):
 # async def send_file(message: types.Document):
 #     await message.reply_document(open('settings\\settings.py', 'rb'))
 
+#Предсказание модели
 @dp.message_handler(content_types=ContentTypes.ANY)
 async def unknown_message(message: types.Message):
     if document := message.document:
@@ -35,40 +36,46 @@ async def unknown_message(message: types.Message):
         )
         # await  message.reply(f'{document.file_name}')
         data = pd.read_csv(document.file_name)
+        if 'isFraud' in list(data.columns.values):
+            if predictor.train(data):
+                bot.send_message("Модель успешно обучилась")
+            else:
+                bot.send_message("Произошла ошибка :(")
         # await message.reply(f'{data.head()}')
-        global predict
-        predict = predictor.predict(data).tolist()
+        else:
+            global predict
+            predict = predictor.predict(data).tolist()
 
-        data['predict'] = predict
-        data.to_csv('predict.csv', index=True)
-        await message.reply_document(open('predict.csv', 'rb'))
-        os.remove('predict.csv')
-        keyboard = types.InlineKeyboardMarkup()
-        number_ofpage = len(predict) // 10 + 1
-        print('number of page:', number_ofpage)
-        page_number = 1
-        line_number = 0
-        for pr in predict:
-            print('line number:', line_number )
-            if line_number == 10:
-                break
-            line_number += 1
-            temp_fraud = 'Not fraud'
-            if pr:
-                temp_fraud = 'Fraud'
-            key = types.InlineKeyboardButton(temp_fraud, callback_data=temp_fraud)
-            keyboard.add(key)
-        key = types.InlineKeyboardButton('▶', callback_data='next00' + str(page_number) + '/' + str(number_ofpage))
-        key1 = types.InlineKeyboardButton(str(page_number) + '/' + str(number_ofpage), callback_data='777')
-        print('predict: ', pr)
-        keyboard.row(key1, key)
-        await bot.send_message(message.from_user.id, 'predict', reply_markup=keyboard)
+            data['predict'] = predict
+            data.to_csv('predict.csv', index=True)
+            await message.reply_document(open('predict.csv', 'rb'))
+            os.remove('predict.csv')
+            keyboard = types.InlineKeyboardMarkup()
+            number_ofpage = len(predict) // 10 + 1
+            print('number of page:', number_ofpage)
+            page_number = 1
+            line_number = 0
+            for pr in predict:
+                print('line number:', line_number )
+                if line_number == 10:
+                    break
+                line_number += 1
+                temp_fraud = 'Not fraud'
+                if pr:
+                    temp_fraud = 'Fraud'
+                key = types.InlineKeyboardButton(temp_fraud, callback_data=temp_fraud)
+                keyboard.add(key)
+            key = types.InlineKeyboardButton('▶', callback_data='next00' + str(page_number) + '/' + str(number_ofpage))
+            key1 = types.InlineKeyboardButton(str(page_number) + '/' + str(number_ofpage), callback_data='777')
+            print('predict: ', pr)
+            keyboard.row(key1, key)
+            await bot.send_message(message.from_user.id, 'predict', reply_markup=keyboard)
 
         print(1)
         # await message.reply(f'{predict}'
         # )
 
-
+# Вывод предсказаний
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('next') or callback_query.data.startswith('prev'))
 async def process_callback_button1(callback_query):
     c = callback_query.data.find('/')
@@ -107,6 +114,8 @@ async def process_callback_button1(callback_query):
     print(all_page)
     await bot.send_message(callback_query.from_user.id, 'Предсказание', reply_markup=keyboard)
     await bot.delete_message(callback_query.from_user.id, callback_query.message.message_id)
+
+
 
 if __name__ == '__main__':
    executor.start_polling(dp)
