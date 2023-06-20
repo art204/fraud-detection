@@ -70,7 +70,7 @@ class Predictor:
         return self.__prep_data_pipe.transform(df)
 
     # Создание DataFrame из исходных данных
-    def __get_dataframe(self, obj):
+    def _get_dataframe(self, obj):
         if isinstance(obj, pd.DataFrame):
             return obj.copy()
         if isinstance(obj, Transaction):
@@ -88,7 +88,7 @@ class Predictor:
             return pd.DataFrame(obj)
 
     def predict(self, data):
-        df = self.__get_dataframe(data)
+        df = self._get_dataframe(data)
         if 'TransactionID' in df.columns:
             df.drop(columns=['TransactionID'], inplace=True)
         if 'isFraud' in df.columns:
@@ -101,7 +101,7 @@ class Predictor:
         return result
 
     def train(self, x_train):
-        x_train = self.__get_dataframe(x_train)
+        x_train = self._get_dataframe(x_train)
         y_train = x_train['isFraud']
         if 'TransactionID' in x_train.columns:
             x_train.drop(columns=['TransactionID'], inplace=True)

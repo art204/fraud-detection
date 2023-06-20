@@ -9,12 +9,21 @@ from fastapi_service.settings import Settings
 from fastapi_service.transaction import Transaction
 
 
-settings = Settings()
-predictor = Predictor(settings.get_model_name())
 app = FastAPI()
 app.add_middleware(PrometheusMiddleware)
 app.add_route("/metrics", metrics)
-db = DBConnection()
+settings = None
+predictor = None
+db = None
+
+@app.on_event('startup')
+async def startup_event():
+    global settings
+    global predictor
+    global db
+    settings = Settings()
+    predictor = Predictor(settings.get_model_name())
+    db = DBConnection()
 
 # Запрос для одной транзакции
 @app.post("/predict_one_transaction")
