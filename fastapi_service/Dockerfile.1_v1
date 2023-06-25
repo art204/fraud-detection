@@ -10,6 +10,8 @@ ADD /fastapi_service/transaction.py /fastapi_service/transaction.py
 ADD /fastapi_service/metrics_utils.py /fastapi_service/metrics_utils.py
 ADD /fastapi_service/settings.py /fastapi_service/settings.py
 ADD /fastapi_service/db_connection.py /fastapi_service/db_connection.py
+ADD /fastapi_service/celery_config /fastapi_service/celery_config
+ADD /fastapi_service/celery_tasks /fastapi_service/celery_tasks
 
 
 RUN mkdir /anomaly
@@ -26,4 +28,3 @@ RUN pip install --upgrade pip
 RUN pip install --upgrade setuptools
 RUN pip install -r requirements.txt
 
-CMD ["uvicorn", "--host", "0.0.0.0", "fastapi_service.main:app"]

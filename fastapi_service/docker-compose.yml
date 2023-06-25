@@ -5,27 +5,67 @@ services:
         build:
             context: ../
             dockerfile: fastapi_service/Dockerfile.1_v1
+        command: uvicorn fastapi_service.main:app --host 0.0.0.0
         ports:
             - "8000:8000"
-        networks:
-            grafana-network:
-                ipv4_address: 172.16.231.11
-            redis-network:
-                ipv4_address: 172.16.232.11
+        environment:
+            - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+            - CELERY_RESULT_BACKEND=redis://redis_celery_result_backend:6379/0
+            - REDIS_DB_URL=redis://redis
+        depends_on:
+            - redis_celery_result_backend
+            - redis
+
+    redis_celery_result_backend:
+        image: redis:7
+        ports:
+            - "6379:6379"
+
+    celery_worker:
+        build:
+            context: ../
+            dockerfile: fastapi_service/Dockerfile.1_v1
+        command: celery -A fastapi_service.celery_tasks.tasks.celery worker --loglevel=info -Q celery_queue --pool=solo
+        volumes:
+            - ./logs:/logs
+        environment:
+            - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+            - CELERY_RESULT_BACKEND=redis://redis_celery_result_backend:6379/0
+            - REDIS_DB_URL=redis://redis
+            - C_FORCE_ROOT=true
+            - PYTHONPATH=.
+        depends_on:
+            - redis_celery_result_backend
+            - redis
+
+    flower:
+        build:
+            context: ../
+            dockerfile: fastapi_service/Dockerfile.1_v1
+        command: celery --broker=amqp://guest:guest@rabbitmq:5672// flower --port=5555
+        ports:
+            - "5555:5555"
+        environment:
+            - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+            - CELERY_RESULT_BACKEND=redis://redis_celery_result_backend:6379/0
+            - REDIS_DB_URL=redis://redis
+        depends_on:
+            - redis_celery_result_backend
 
     redis:
         image: redis:7
-        container_name: redis
-        restart: unless-stopped
         volumes:
             - ./redis/data:/data
             - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
         ports:
-            - "6379:6379"
-        networks:
-            redis-network:
-                ipv4_address: 172.16.232.12
+            - "16379:6379"
         command: redis-server /usr/local/etc/redis/redis.conf
+
+    rabbitmq:
+        image: rabbitmq
+        ports:
+            - "5672:5672"
+            - "15672:15672"
 
     tg-bot:
         build:
@@ -47,9 +87,6 @@ services:
             - type: bind
               source: ./prometheus
               target: /etc/prometheus
-        networks:
-            grafana-network:
-                ipv4_address: 172.16.231.12
 
     grafana:
         ports:
@@ -63,21 +100,3 @@ services:
             GF_AUTH_ANONYMOUS_ENABLED: "true"
             GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
             GF_AUTH_DISABLE_LOGIN_FORM: "true"
-        networks:
-            grafana-network:
-                ipv4_address: 172.16.231.13
-
-networks:
-    grafana-network:
-        driver: bridge
-        ipam:
-            driver: default
-            config:
-                - subnet: 172.16.231.0/24
-
-    redis-network:
-        driver: bridge
-        ipam:
-            driver: default
-            config:
-                - subnet: 172.16.232.0/24

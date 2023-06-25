@@ -1,4 +1,5 @@
 import json
+import os
 import aioredis
 
 from fastapi_service.transaction import Transaction
@@ -6,7 +7,7 @@ from fastapi_service.transaction import Transaction
 
 class DBConnection:
     def __init__(self):
-        self._redis = aioredis.Redis.from_url("redis://172.16.232.12")
+        self._redis = aioredis.Redis.from_url(os.environ.get("REDIS_DB_URL", "redis://localhost:16379"))
 
     async def get(self, trn_id):
         transaction = await self._redis.get(trn_id)

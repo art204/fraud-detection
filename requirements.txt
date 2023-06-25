@@ -22,3 +22,8 @@ tqdm
 aioredis
 pytest
 pytest-asyncio
+pytest-cov
+redis
+celery
+kombu
+flower

@@ -11,7 +11,7 @@ Available models:
     Stacking classifier with 3 estimators (CatBoost, XGB, LGBM): `'staking'`
 
 ## DB
-Transactions are stored in the database. Current version of the service uses Redis DB.
+Transactions are stored in the database. Current version of the service uses Redis DB. (file `fastapi_service/db_connection.py`)
 Transaction can be requested from the database by `TransactionID`.
 
 ## Docker image link

@@ -5,7 +5,7 @@ from torch import nn
 
 
 def train_epochs(model, optimizer, criterion, metric, train_loader,
-          num_epochs, scheduler=None, device='cpu', verbose=True):
+                 num_epochs, scheduler, device, verbose=True):
 
     train_losses = []
     train_metrics = []
@@ -44,7 +44,7 @@ def train_epochs(model, optimizer, criterion, metric, train_loader,
 def train(model, optimizer, scheduler, X_train, y_train):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     train_set = TensorDataset(torch.from_numpy(X_train.values).to(torch.float32), torch.tensor(y_train))
-    train_loader = DataLoader(train_set, batch_size=512, shuffle=True, num_workers=2, pin_memory=True)
+    train_loader = DataLoader(train_set, batch_size=512, shuffle=True, num_workers=1, pin_memory=True)
     num_epochs = 3
     model = model.to(device)
     criterion = nn.CrossEntropyLoss().to(device)
